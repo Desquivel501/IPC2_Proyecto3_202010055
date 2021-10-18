@@ -1,7 +1,8 @@
-from django.urls import path, include
-from .views import signin, home
+from django.urls import path
+from django.urls.resolvers import URLPattern
+from .views import *
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('signin', signin, name='signin'),
+    path('', inicio),
+    path('login', login),
 ]

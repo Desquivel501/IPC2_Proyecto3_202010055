@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 
 # Create your views here.
-def signin(request):
-    return HttpResponse('Sign in')
 
-def home(request):
-    return render(request,'app/home.html')
+def inicio(request):
+    return HttpResponse("Ejemplo")
+
+def login(request):
+    return HttpResponse("Login")
