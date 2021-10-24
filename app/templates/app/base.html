@@ -36,41 +36,37 @@
               </button>
               <div class="collapse navbar-collapse" id="navbarNavDropdown">
                 <ul class="navbar-nav">
-                  
 
-                  <li class="nav-item dropdown">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Peticiones
+                        </a>
+                      <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" href="#" onclick="getSalida()">Consultar Datos</a></li>
+                        <li><a class="dropdown-item" href="#">Resumen de IVA por fecha y NIT</a></li>
+                        <li><a class="dropdown-item" href="#">Resumen por rango de fechas</a></li>
+                      </ul>
+                    </li>
+                    <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Peticiones
+                        Ayuda
                       </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <li><a class="dropdown-item" href="#">Consultar Datos</a></li>
-                      <li><a class="dropdown-item" href="#">Resumen de IVA por fecha y NIT</a></li>
-                      <li><a class="dropdown-item" href="#">Resumen por rango de fechas</a></li>
-                    </ul>
-                  </li>
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Ayuda
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                      <li><a class="dropdown-item" href="#">Datos del Estudiante</a></li>
-                      <li><a class="dropdown-item" href="https://drive.google.com/file/d/1xKAzTVpnjQUVHAtkUM8_9ErUocc_JzUS/view?usp=sharing" target="_blank">Documentacion</a></li>
-                    </ul>
-                  </li>
-                  <li class="nav-item">
-                    <form method="post" enctype="form-data">
-
+                      <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" href="#">Datos del Estudiante</a></li>
+                        <li><a class="dropdown-item" href="https://drive.google.com/file/d/1xKAzTVpnjQUVHAtkUM8_9ErUocc_JzUS/view?usp=sharing" target="_blank">Documentacion</a></li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
                         <div>
                           <label for="file" id="label-upload">Cargar Archivo</label>
                           <input type="file" id="file" name="file"  hidden>
-                          
                         </div>  
-                    </form>
-                  </li>
+                    </li>
+                  
+                    <li class="nav-item ">
+                      <button class="nav-link btn btn-outline-light"  id="navbarDropdownMenuLink" style="font-family: 'Roboto';font-size: 20px; color: rgb(255, 255, 255);" onClick="cargaArchivo()">Cargar</button>
+                    </li>
 
-                  <li class="nav-item ">
-                    <button class="nav-link btn btn-outline-light"  id="navbarDropdownMenuLink" style="font-family: 'Roboto';font-size: 20px; color: rgb(255, 255, 255);" onClick="cargaArchivo()">Cargar</button>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -95,11 +91,11 @@
                           <div class="row justify-content-md-center">
                             <div class="col" style="text-align: center;">
                               <label for="exampleFormControlTextarea1" class="form-label">Entrada</label>
-                              <textarea class="form-control" id="entrada" name ="entrada" rows="20" style="resize: none !important;"></textarea>
+                              <textarea class="form-control" id="entrada" name ="entrada" rows="20" wrap='off' style="resize: none !important;"></textarea>
                             </div>
                             <div class="col" style="text-align: center;">
                               <label for="exampleFormControlTextarea1" class="form-label">Salida</label>
-                              <textarea class="form-control" id="salida" name="salida" rows="20" readonly style="resize: none !important;"></textarea>
+                              <textarea class="form-control" id="salida" name="salida" rows="20" wrap='off' readonly style="resize: none !important;"></textarea>
                             </div>
                           </div>           
                         </div>
@@ -126,6 +122,19 @@
                         document.getElementById('entrada').value = ""
                       }
                       
+                      function getSalida(){
+                        fetch('http://127.0.0.1:8000/getSalida', {
+                        method: 'GET',
+                        })
+                        .then(res => res.json())
+                        .catch(err =>{
+                            console.log("Ha ocurrido un error");
+                            alert("Ha ocurrido un error")
+                        })
+                          .then(response =>{
+                            document.getElementById('salida').value = response.xml
+                        })
+                      }
 
                     </script>
 

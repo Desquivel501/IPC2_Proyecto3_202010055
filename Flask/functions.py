@@ -18,7 +18,7 @@ class Functions:
         
         for dte in  root.findall("DTE"):
             tiempo = dte.find("TIEMPO").text
-            referencia = dte.find("REFERENCIA").text
+            referencia = str(dte.find("REFERENCIA").text).strip()
             emisor = dte.find("NIT_EMISOR").text
             receptor = dte.find("NIT_RECEPTOR").text
             valor = dte.find("VALOR").text
@@ -85,6 +85,7 @@ class Functions:
                     listaAutorizaciones[index].noEmisores += 1
                     
             else:
+                # del listaAutorizaciones[-1]
                 print("Invalid")
             
         return (listaAutorizaciones)
@@ -121,7 +122,7 @@ class Functions:
     def checkReferencia(self, referencia, listaAutorizaciones):
         for autorizacion in listaAutorizaciones:
             for factura in autorizacion.listaFacturas:
-                if factura.referencia == referencia:
+                if str(factura.referencia).strip() == str(referencia):
                     return True
         return False
                 
@@ -161,7 +162,7 @@ class Functions:
     def getAutorizacion(self, listaAutorizacion, fecha):
         index = 0
         for autorizacion in listaAutorizacion:
-            if autorizacion.fecha == fecha:
+            if autorizacion.fecha.strip() == fecha.strip():
                 return index
             index += 1
         error = Errores()

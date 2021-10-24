@@ -16,33 +16,33 @@ class Salida:
         
         for autorizacion in root.findall("AUTORIZACION"):
             fecha = autorizacion.find("FECHA").text
-            noFacturas = autorizacion.find("FACTURAS_RECIBIDAS").text
+            noFacturas = int(autorizacion.find("FACTURAS_RECIBIDAS").text)
             
             listaErrores = Errores()
             errores = autorizacion.find("ERRORES")
-            listaErrores.duplicada = errores.find("REFERENCIA_DUPLICADA").text
+            listaErrores.duplicada = int(errores.find("REFERENCIA_DUPLICADA").text)
             if listaErrores.duplicada is None:
                 listaErrores.duplicada = 0
                 
-            listaErrores.nit_receptor = errores.find("NIT_RECEPTOR").text
+            listaErrores.nit_receptor = int(errores.find("NIT_RECEPTOR").text)
             if listaErrores.nit_receptor is None:
                 listaErrores.nit_receptor = 0
                 
-            listaErrores.nit_emisor = errores.find("NIT_EMISOR").text
+            listaErrores.nit_emisor = int(errores.find("NIT_EMISOR").text)
             if listaErrores.nit_emisor is None:
                 listaErrores.nit_emisor = 0
                 
-            listaErrores.iva = errores.find("IVA").text
+            listaErrores.iva = int(errores.find("IVA").text)
             if listaErrores.iva is None:
                 listaErrores.iva = 0
                 
-            listaErrores.total = errores.find("TOTAL").text
+            listaErrores.total = int(errores.find("TOTAL").text) 
             if listaErrores.total is None:
                 listaErrores.total = 0
             
-            noCorrectas = autorizacion.find("FACTURAS_CORRECTAS").text
-            noReceptores = autorizacion.find("CANTIDAD_RECEPTORES").text
-            noEmisores = autorizacion.find("CANTIDAD_EMISORES").text
+            noCorrectas = int(autorizacion.find("FACTURAS_CORRECTAS").text)
+            noReceptores = int(autorizacion.find("CANTIDAD_RECEPTORES").text)
+            noEmisores = int(autorizacion.find("CANTIDAD_EMISORES").text)
             
             listaFacturas = []
             listado_autorizacion = autorizacion.find("LISTADO_AUTORIZACIONES")
@@ -57,7 +57,7 @@ class Salida:
 
                 listaFacturas.append(Factura(fecha,referencia,nit_emisor,None,valor,round(iva,2),total,codigo_aprobacion))   
             
-            listaAutorizaciones.append(Autorizacion(fecha,noFacturas,listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
+            listaAutorizaciones.append(Autorizacion(fecha,int(noFacturas),listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
             print(fecha,noFacturas,listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas)
             
         return listaAutorizaciones

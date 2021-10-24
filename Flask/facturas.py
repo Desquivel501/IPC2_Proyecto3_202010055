@@ -7,19 +7,15 @@ class Autorizacion:
         self.noReceptores = noReceptores
         self.noEmisores = noEmisores
         self.noCorrectas = noCorrectas
-        self.codigo = int(self.getCodigo(str(fecha)))
+        self.codigo = int(self.getCodigo(str(fecha))) + int(noCorrectas)
         
         
     def getCodigo(self, fecha):
         cero = "00000000"
-        valor = str(fecha).replace('/','')
-        
-        if type(valor) is list:
-            codigo = str(valor[0]) + cero
-        else:
-            codigo = str(valor) + cero
-
-        print(codigo.replace(' ',''))
+        lista = fecha.split("/")
+        lista = reversed(lista)
+        valor = ''.join(map(str, lista))
+        codigo = str(valor) + cero
         return (codigo.replace(' ',''))
 
 

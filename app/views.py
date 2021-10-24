@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 import json
 import requests
 
@@ -16,16 +16,21 @@ def inicio(request):
                 'archivo': entrada
             }
             r = requests.post(url+'entrada', json=objeto, verify=True)
-            
-        if 'file' in request.POST:
-            file = request.POST['file']
-            print(file)
-        if 'archivo' in request.POST:
-            file = request.POST['archivo']
-            print(file)
 
-        
     return render(request, 'app/base.html')
 
+def getSalida(request):
+    if request.method == 'GET':
+        print("GET!")
+        requests_response  = requests.get(url+'getSalida', verify=True)
+        
+    django_response = HttpResponse(
+        content=requests_response.content,
+        status=requests_response.status_code,
+        content_type=requests_response.headers['Content-Type']
+    )
+
+    return HttpResponse(django_response)
+        
 def login(request):
     return HttpResponse("Login")

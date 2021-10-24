@@ -32,6 +32,19 @@ def leerEntrada():
     return jsonify({
         "Mensaje":"Se ha leido el archivo"
     }) 
+    
+@app.route("/getSalida", methods=["GET"])
+def getSalidaStr():
+    filename = "Flask/autorizaciones.xml"
+    archivo = open(filename, "r")
+    contenido = archivo.read()
+    print("salida")
+    print(contenido)
+    objeto = {
+        "xml":contenido
+    }
+    
+    return jsonify(objeto)
 
 if __name__ == "__main__":
     app.run(threaded=True, debug=True)
