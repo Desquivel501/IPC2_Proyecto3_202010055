@@ -54,7 +54,7 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                       <li><a class="dropdown-item" href="#">Datos del Estudiante</a></li>
-                      <li><a class="dropdown-item" href="#">Documentacion</a></li>
+                      <li><a class="dropdown-item" href="https://drive.google.com/file/d/1xKAzTVpnjQUVHAtkUM8_9ErUocc_JzUS/view?usp=sharing" target="_blank">Documentacion</a></li>
                     </ul>
                   </li>
                   <li class="nav-item">
@@ -69,7 +69,7 @@
                   </li>
 
                   <li class="nav-item ">
-                    <button class="nav-link btn btn-outline-light"  id="navbarDropdownMenuLink" style="font-family: 'Roboto';font-size: 20px; color: rgb(255, 255, 255);">Cargar</button>
+                    <button class="nav-link btn btn-outline-light"  id="navbarDropdownMenuLink" style="font-family: 'Roboto';font-size: 20px; color: rgb(255, 255, 255);" onClick="cargaArchivo()">Cargar</button>
                   </li>
                 </ul>
               </div>
@@ -87,7 +87,7 @@
                                 <button type="submit" class="btn btn-outline-success" id="button-enviar">Enviar</button>
                             </div>
                             <div class="col-1">
-                                <button type="button" class="btn btn-outline-danger" id="button-enviar">Reset</button>
+                                <button type="button" class="btn btn-outline-danger" id="button-enviar" onClick="reset()">Reset</button>
                             </div>
                         </div>
                         &nbsp;
@@ -109,58 +109,28 @@
 
                     <script>
                       var test = document.querySelector('input');
+                      
+                      function cargaArchivo(){
+                        let archivo = document.getElementById('file').files[0];
+                        var texto = ""
+                        
+                        const reader = new FileReader();
+                        reader.readAsText(archivo, "UTF-8");
+                        reader.onload = function() {
+                          console.log(reader.result);
+                          document.getElementById('entrada').value = reader.result
+                        };
+                      }
+
+                      function reset(){
+                        document.getElementById('entrada').value = ""
+                      }
+                      
+
                     </script>
 
                     <hr/>
-                    <!-- <section class="resume-section" id="experience">
-                        <div class="resume-section-content">
-                            <h2 class="mb-5 text-primary">Experiencia</h2>
-                            <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
-                                <div class="flex-grow-1">
-                                    <h3 class="mb-0">Senior Web Developer</h3>
-                                    <div class="subheading mb-3">Amazon Web Services</div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-                                </div>
-                                <div class="flex-shrink-0"><span class="text-primary">Marzo 2020 - Presente</span></div>
-                            </div>
-                            <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
-                                <div class="flex-grow-1">
-                                    <h3 class="mb-0">Web Developer</h3>
-                                    <div class="subheading mb-3">Oracle</div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit.</p>
-                                </div>
-                                <div class="flex-shrink-0"><span class="text-primary">Diciembre 2016 - March 2020</span></div>
-                            </div>
-                            <div class="d-flex flex-column flex-md-row justify-content-between mb-5">
-                                <div class="flex-grow-1">
-                                    <h3 class="mb-0">Junior Web Designer</h3>
-                                    <div class="subheading mb-3">Microsoft Corporation</div>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras maximus scelerisque tortor sit amet sollicitudin. Pellentesque facilisis sem at dolor laoreet, ac auctor lacus ultrices.</p>
-                                </div>
-                                <div class="flex-shrink-0"><span class="text-primary">Julio 2015 - Noviembre 2016</span></div>
-                            </div>
-                            <div class="d-flex flex-column flex-md-row justify-content-between">
-                                <div class="flex-grow-1">
-                                    <h3 class="mb-0">Web Design Intern</h3>
-                                    <div class="subheading mb-3">Google, LLC</div>
-                                    <p>Phasellus tincidunt nibh et fringilla tincidunt. Sed laoreet neque id ante elementum, at vestibulum tortor imperdiet. Pellentesque vitae justo imperdiet, rhoncus urna in, accumsan lorem. Etiam fringilla nunc ex, vitae lacinia nisl sagittis eu.</p>
-                                </div>
-                                <div class="flex-shrink-0"><span class="text-primary">Septiembre 2012 - Junio 2015</span></div>
-                            </div>
-                        </div>
-                    </section>
 
-                    <hr/>
-                    <section class="resume-section" id="interests">
-                        <div class="resume-section-content">
-                            <h2 class="mb-5 text-primary">Intereses</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In blandit magna in lacinia dignissim. Sed varius vitae risus imperdiet venenatis. Morbi ullamcorper lacus non nisl vehicula, at ultricies nisi maximus. Morbi pulvinar mi ac nibh pulvinar, quis sodales arcu ullamcorper. Donec faucibus convallis sem sit amet gravida. Integer sagittis, neque id aliquam hendrerit, nisi mi vulputate massa, nec maximus orci nunc vitae mi.</p>
-                            <p class="mb-0">Quisque vestibulum odio lacus, vitae commodo neque tempor ac. Nullam in sapien pretium, iaculis diam sit amet, porttitor sem. Proin sed dapibus libero. Phasellus sed arcu euismod, vehicula sem sit amet, consequat mi. Vivamus sit amet risus mi. Pellentesque at ipsum sed sem mollis egestas. Praesent quis lorem odio. Nullam purus est, gravida eget feugiat at, finibus sit amet erat. </p>
-                            
-                            <img src="assets/hobbie.jpg" class="img-thumbnail center">
-                        </div>
-                    </section>
-                    <hr/> -->
                 
                 
                 </div>
