@@ -1,0 +1,112 @@
+{% extends 'app/graph.html' %}
+
+{% block contenedor %}
+
+<div class="row align-items-center">
+    <div class="col">
+        <form>
+            <div class="mb-3">
+                <h3>Resumen por rango de fechas</h3>
+                <hr>
+            </div>
+
+            <div class="mb-3">
+              <label for="FechaDesde" class="form-label">Desde</label>
+              <input type="date" id="FechaDesde" placeholder="dd-mm-yyyy" value="" min="1997-01-01" max="2030-12-31" style="width: 50%;">
+            </div>
+
+            <div class="mb-3">
+                <label for="FechaHasta" class="form-label">Hasta</label>
+                <input type="date" id="FechaHasta" placeholder="dd-mm-yyyy" value="" min="1997-01-01" max="2030-12-31" style="width: 50%;">
+            </div>
+
+            <div class="mb-3 form-check">
+              <label class="form-check-label" for="exampleCheck1">Agregar IVA</label>
+              <input type="checkbox" class="form-check-input" id="iva">
+              
+            </div>
+            <button type="submit" class="btn btn-primary" >Generar</button>
+        </form>
+    </div>
+    <div class="col">
+        <canvas id="myChart"></canvas>
+    </div>    
+</div>  
+
+{% endblock %}
+
+{% block jsblock %}
+  <script>
+    document.addEventListener('submit',function(event){
+      event.preventDefault();
+      var xValues = [];
+      var yValues = [];
+      var barColors = [];
+
+      var iva = document.getElementById('iva').checked;
+      var desde = document.getElementById('FechaDesde').value;
+      var hasta = document.getElementById('FechaHasta').value;
+      
+      var objeto = {
+        "iva":iva,
+        "desde":desde,
+        "hasta":hasta
+      }
+
+      const csrftoken = getCookie('csrftoken')
+      console.log(objeto)
+
+      fetch('http://127.0.0.1:8000/getTablaFechas', {
+        method: 'POST',
+        credentials : 'include',
+        body: JSON.stringify(objeto),
+        headers:{
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'X-CSRFToken': csrftoken}
+      })
+        .then(res => res.json())
+        .catch(err =>{
+            console.log("Ha ocurrido un error");
+            alert("Ha ocurrido un error")
+        })
+          .then(response =>{
+            console.log(response)
+            if( response.mensaje != "ERROR"){
+              xValues = response.xValues
+              total = response.total
+  
+              new Chart("myChart", {
+                type: "line",
+                data: {
+                    labels: xValues,
+                    datasets: [
+                      {
+                        label:"Emitido",
+                        fill: false,
+                        lineTension: 0,
+                        backgroundColor: "rgba(0,0,255,1.0)",
+                        borderColor: "rgba(0,0,255,0.5)",
+                        data: total
+                      },
+                    ]
+                },
+                options: {
+                    legend: {display: false},
+                    title: {
+                    display: true,
+                    text: "Total por fecha"
+                    },
+                }
+                });
+            }else{
+              alert("Error")
+            }
+
+          
+      
+        })
+    })
+
+    </script>
+{% endblock %}

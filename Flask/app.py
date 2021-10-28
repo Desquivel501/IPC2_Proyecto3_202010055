@@ -31,20 +31,95 @@ def leerEntrada():
     listaAutorizaciones = funcion.analizarEntrada(texto, listaAutorizaciones)
     return jsonify({
         "Mensaje":"Se ha leido el archivo"
-    }) 
-    
+    })
+
 @app.route("/getSalida", methods=["GET"])
 def getSalidaStr():
     filename = "Flask/autorizaciones.xml"
     archivo = open(filename, "r")
     contenido = archivo.read()
     print("salida")
-    print(contenido)
     objeto = {
         "xml":contenido
     }
+
+    return jsonify(objeto)
+
+
+@app.route("/getTablaIva", methods=["POST"])
+def getTablaIva():
+    global listaAutorizaciones
+    
+    tabla = Functions()
+
+    nit = request.json['nit']
+    desde = request.json['desde']
+    hasta = request.json['hasta']
+    
+    datos = tabla.tablaIva(nit,desde,hasta,listaAutorizaciones)
+    
+    objeto={"mensaje":"ERROR"}
+    
+    if datos is not None:
+
+        objeto = {
+            "xValues":datos[0],
+            "emisores":datos[1],
+            "receptores":datos[2],
+            "mensaje":"Correcto"
+        }
+    return jsonify(objeto)
+
+
+@app.route("/getTablaFecha", methods=["POST"])
+def getTablaFecha():
+    global listaAutorizaciones
+    
+    tabla = Functions()
+
+    iva = request.json['iva']
+    desde = request.json['desde']
+    hasta = request.json['hasta']
+    
+    datos = tabla.tablaFecha(iva,desde,hasta,listaAutorizaciones)
+    
+    objeto={"mensaje":"ERROR"}
+    
+    if datos is not None:
+        
+        objeto = {
+            "xValues":datos[0],
+            "total":datos[1],
+            "mensaje":"Correcto"
+        }
+
+    return jsonify(objeto)
+
+
+@app.route("/", methods=["GET"])
+def getHome():
+   
+    objeto = {
+        "Index":"Hola"
+    }
+
+    return jsonify(objeto)
+
+
+@app.route("/reset", methods=["GET"])
+def reset():
+    global listaAutorizaciones
+    listaAutorizaciones = []
+    
+    filename = "Flask/autorizaciones.xml"
+    archivo = open(filename, "w+")
+    archivo.write("")
+    archivo.close()
+    
+    objeto = {"Mensaje":"Borrado"}
     
     return jsonify(objeto)
+
 
 if __name__ == "__main__":
     app.run(threaded=True, debug=True)

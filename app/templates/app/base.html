@@ -19,6 +19,7 @@
 
         <link rel="stylesheet" id="font-awesome-css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css?ver=4.9.4" type="text/css" media="all">
         <script defer="" src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
         <title>My App</title>
@@ -30,7 +31,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-dark " style="background-color: #3498db;" id="navbar">
             <div class="container-fluid">
-              <a class="navbar-brand" href="#">Navbar</a>
+              <a class="navbar-brand" href="http://127.0.0.1:8000/">Navbar</a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -43,8 +44,8 @@
                         </a>
                       <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <li><a class="dropdown-item" href="#" onclick="getSalida()">Consultar Datos</a></li>
-                        <li><a class="dropdown-item" href="#">Resumen de IVA por fecha y NIT</a></li>
-                        <li><a class="dropdown-item" href="#">Resumen por rango de fechas</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/graphs-iva">Resumen de IVA por fecha y NIT</a></li>
+                        <li><a class="dropdown-item" href="http://127.0.0.1:8000/graphs-fechas">Resumen por rango de fechas</a></li>
                       </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -83,7 +84,7 @@
                                 <button type="submit" class="btn btn-outline-success" id="button-enviar">Enviar</button>
                             </div>
                             <div class="col-1">
-                                <button type="button" class="btn btn-outline-danger" id="button-enviar" onClick="reset()">Reset</button>
+                                <button type="button" class="btn btn-outline-danger" id="button-enviar" onClick="borrar()">Reset</button>
                             </div>
                         </div>
                         &nbsp;
@@ -118,8 +119,44 @@
                         };
                       }
 
-                      function reset(){
-                        document.getElementById('entrada').value = ""
+                      function borrar(){
+                        
+                        Swal.fire({
+                          title: '¿Desea eliminar todos los registros?',
+                          showDenyButton: true,
+                          
+                          confirmButtonText: 'Si',
+                          denyButtonText: 'No',
+                          customClass: {
+                            actions: 'my-actions',
+                            cancelButton: 'order-1 right-gap',
+                            confirmButton: 'order-2',
+                            denyButton: 'order-3',
+                          }
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            document.getElementById('entrada').value = ""
+                            document.getElementById('salida').value = ""
+
+                            fetch('http://127.0.0.1:8000/reset', {
+                              method: 'GET'
+                      
+                              })
+                              .then(res => res.json())
+                              .catch(err =>{
+                                  console.log("Ha ocurrido un error");
+                                  alert("Ha ocurrido un error")
+                              })
+                                .then(response =>{
+                                  
+                              })
+                            Swal.fire('Borrado!', '', 'success')
+                          } else if (result.isDenied) {
+                            
+                          }
+                        })
+
+                        
                       }
                       
                       function getSalida(){

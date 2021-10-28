@@ -38,6 +38,8 @@ class Functions:
             iva_parseado = self.checkValor(iva)
             total_parseado = self.checkValor(total)
             
+           
+            
             if not fecha:
                 valid = False
                 listaAutorizaciones[index].error.fecha += 1
@@ -65,24 +67,32 @@ class Functions:
                 
             if valid:
                 print("Valid!")
+                
+                receptor_repetido = False
+                for factura in listaAutorizaciones[index].listaFacturas:
+                        
+                    if str(factura.nit_receptor) == str(receptor):
+                        receptor_repetido = True
+                if receptor_repetido is False:
+                    listaAutorizaciones[index].noReceptores += 1
+                        
+                emisor_repetido = False
+                for factura in listaAutorizaciones[index].listaFacturas:
+                        
+                    if str(factura.nit_emisor) == str(emisor):
+                        emisor_repetido = True
+                if emisor_repetido is False:
+                    listaAutorizaciones[index].noEmisores += 1
+
+                
                 listaAutorizaciones[index].listaFacturas.append(Factura(fecha,referencia,emisor,receptor,valor,iva,total, codigo))
                 listaAutorizaciones[index].noFacturas += 1
                 listaAutorizaciones[index].noCorrectas += 1
                 listaAutorizaciones[index].codigo += 1
                 
-                receptor_repetido = False
-                for factura in listaAutorizaciones[index].listaFacturas:
-                    if str(factura.nit_receptor) == str(receptor):
-                        receptor_repetido = True
-                if not receptor_repetido:
-                    listaAutorizaciones[index].noReceptores += 1
-                    
-                emisor_repetido = False
-                for factura in listaAutorizaciones[index].listaFacturas:
-                    if str(factura.nit_emisor) == str(emisor):
-                        emisor_repetido = True
-                if not emisor_repetido:
-                    listaAutorizaciones[index].noEmisores += 1
+                print("here")
+                
+                
                     
             else:
                 # del listaAutorizaciones[-1]
@@ -123,6 +133,7 @@ class Functions:
         for autorizacion in listaAutorizaciones:
             for factura in autorizacion.listaFacturas:
                 if str(factura.referencia).strip() == str(referencia):
+                    print("Referencia Repetida")
                     return True
         return False
                 
@@ -168,6 +179,136 @@ class Functions:
         error = Errores()
         listaAutorizacion.append(Autorizacion(fecha,0,[],error,0,0,0))
         return index
-    
-    
+ 
+    def tablaIva(self, nit, desde , hasta, listaAutorizaciones):
+        import time
+        from datetime import datetime
+        from time import mktime
+
+        lista = []
         
+        desde = desde.strip()
+        hasta = hasta.strip()
+        
+        fecha_desde = time.strptime(desde, "%d/%m/%Y")
+        fecha_hasta = time.strptime(hasta, "%d/%m/%Y")
+        
+        check_valid = False
+        
+        if fecha_desde < fecha_hasta:
+            print("Valid")
+            check_valid = True
+        else:
+            print("No")
+            
+        if check_valid:
+            for autorizacion in listaAutorizaciones:
+                lista_aux = []
+                
+                fecha = autorizacion.fecha.strip()
+                fecha_actual = time.strptime(fecha, "%d/%m/%Y")
+                
+                if fecha_desde <= fecha_actual <= fecha_hasta:
+                    lista_aux.append(fecha_actual)
+                    
+                    dt = datetime.fromtimestamp(mktime(fecha_actual))
+                    
+                    fecha_str = dt.strftime("%d/%m/%Y")
+                    
+                    total_emitido = 0
+                    total_recibido = 0
+                    
+                    for factura in autorizacion.listaFacturas:
+
+                        if str(factura.nit_emisor).strip() == str(nit).strip():
+                            iva = float(str(factura.iva).strip())
+                            total_emitido += iva
+
+                        print(nit, factura.nit_receptor)  
+                        if str(factura.nit_receptor).strip() == str(nit).strip():
+                            iva = float(str(factura.iva).strip())
+                            total_recibido += iva
+                    
+                    lista_aux.append(total_emitido)
+                    lista_aux.append(total_recibido)
+                    
+                lista.append(lista_aux)
+
+            lista.sort()
+            
+            lista_fechas_aux = []
+            lista_emisores_aux = []
+            lista_receptores_aux = []
+            
+            for elemento in lista:
+                dt = datetime.fromtimestamp(mktime(elemento[0]))
+                fecha_str = dt.strftime("%d/%m/%Y")
+                
+                lista_fechas_aux.append(fecha_str)
+                lista_emisores_aux.append(elemento[1])
+                lista_receptores_aux.append(elemento[2])
+
+            return (lista_fechas_aux, lista_emisores_aux, lista_receptores_aux )
+        return(None)
+              
+    def tablaFecha(self, iva, desde , hasta, listaAutorizaciones):
+        import time
+        from datetime import datetime
+        from time import mktime
+        
+        lista = []
+        
+        desde = desde.strip()
+        hasta = hasta.strip()
+        
+        fecha_desde = time.strptime(desde, "%d/%m/%Y")
+        fecha_hasta = time.strptime(hasta, "%d/%m/%Y")
+        
+        check_valid = False
+        
+        if fecha_desde < fecha_hasta:
+            print("Valid")
+            check_valid = True
+        else:
+            print("No")
+            
+        if check_valid:
+            for autorizacion in listaAutorizaciones:
+                lista_aux = []
+                
+                fecha = autorizacion.fecha.strip()
+                fecha_actual = time.strptime(fecha, "%d/%m/%Y")
+                
+                if fecha_desde <= fecha_actual <= fecha_hasta:
+                    lista_aux.append(fecha_actual)
+                    
+                    dt = datetime.fromtimestamp(mktime(fecha_actual))
+                    fecha_str = dt.strftime("%d/%m/%Y")
+                    
+                    total = 0
+                    for factura in autorizacion.listaFacturas:
+                        if iva:
+                            total += float(factura.total)
+                        else:
+                            total += float(factura.valor)
+    
+                    lista_aux.append(total)
+                    
+                lista.append(lista_aux)
+
+            lista.sort()
+            
+            lista_fechas_aux = []
+            lista_total_aux = []
+            
+            for elemento in lista:
+                dt = datetime.fromtimestamp(mktime(elemento[0]))
+                fecha_str = dt.strftime("%d/%m/%Y")
+                
+                lista_fechas_aux.append(fecha_str)
+                lista_total_aux.append(elemento[1])
+                
+            return (lista_fechas_aux, lista_total_aux)
+        return(None)       
+            
+            

@@ -10,55 +10,61 @@ class Salida:
     def leerSalida(self):
         listaAutorizaciones = []
         filename = "Flask/autorizaciones.xml"
-        parser = ET.XMLParser(encoding="utf-8")
-        tree = ET.parse(filename,parser =parser)
-        root = tree.getroot()
+        archivo = open(filename,"r")
+        contenido = archivo.read()
         
-        for autorizacion in root.findall("AUTORIZACION"):
-            fecha = autorizacion.find("FECHA").text
-            noFacturas = int(autorizacion.find("FACTURAS_RECIBIDAS").text)
-            
-            listaErrores = Errores()
-            errores = autorizacion.find("ERRORES")
-            listaErrores.duplicada = int(errores.find("REFERENCIA_DUPLICADA").text)
-            if listaErrores.duplicada is None:
-                listaErrores.duplicada = 0
-                
-            listaErrores.nit_receptor = int(errores.find("NIT_RECEPTOR").text)
-            if listaErrores.nit_receptor is None:
-                listaErrores.nit_receptor = 0
-                
-            listaErrores.nit_emisor = int(errores.find("NIT_EMISOR").text)
-            if listaErrores.nit_emisor is None:
-                listaErrores.nit_emisor = 0
-                
-            listaErrores.iva = int(errores.find("IVA").text)
-            if listaErrores.iva is None:
-                listaErrores.iva = 0
-                
-            listaErrores.total = int(errores.find("TOTAL").text) 
-            if listaErrores.total is None:
-                listaErrores.total = 0
-            
-            noCorrectas = int(autorizacion.find("FACTURAS_CORRECTAS").text)
-            noReceptores = int(autorizacion.find("CANTIDAD_RECEPTORES").text)
-            noEmisores = int(autorizacion.find("CANTIDAD_EMISORES").text)
-            
-            listaFacturas = []
-            listado_autorizacion = autorizacion.find("LISTADO_AUTORIZACIONES")
-            
-            for factura in listado_autorizacion.findall("APROBACION"):
-                nit_emisor = factura.find("NIT_EMISOR").text
-                referencia = factura.find("NIT_EMISOR").attrib["ref"]
-                codigo_aprobacion = factura.find("CODIGO_APROBACION").text
-                total = factura.find("TOTAL").text
-                valor = round(float(total)/1.12, 2)
-                iva = float(total) - float(valor)
+        if contenido is not "":
 
-                listaFacturas.append(Factura(fecha,referencia,nit_emisor,None,valor,round(iva,2),total,codigo_aprobacion))   
+            parser = ET.XMLParser(encoding="utf-8")
+            tree = ET.parse(filename,parser =parser)
+            root = tree.getroot()
             
-            listaAutorizaciones.append(Autorizacion(fecha,int(noFacturas),listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
-            print(fecha,noFacturas,listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas)
+            for autorizacion in root.findall("AUTORIZACION"):
+                fecha = autorizacion.find("FECHA").text
+                noFacturas = int(autorizacion.find("FACTURAS_RECIBIDAS").text)
+                
+                listaErrores = Errores()
+                errores = autorizacion.find("ERRORES")
+                listaErrores.duplicada = int(errores.find("REFERENCIA_DUPLICADA").text)
+                if listaErrores.duplicada is None:
+                    listaErrores.duplicada = 0
+                    
+                listaErrores.nit_receptor = int(errores.find("NIT_RECEPTOR").text)
+                if listaErrores.nit_receptor is None:
+                    listaErrores.nit_receptor = 0
+                    
+                listaErrores.nit_emisor = int(errores.find("NIT_EMISOR").text)
+                if listaErrores.nit_emisor is None:
+                    listaErrores.nit_emisor = 0
+                    
+                listaErrores.iva = int(errores.find("IVA").text)
+                if listaErrores.iva is None:
+                    listaErrores.iva = 0
+                    
+                listaErrores.total = int(errores.find("TOTAL").text) 
+                if listaErrores.total is None:
+                    listaErrores.total = 0
+                
+                noCorrectas = int(autorizacion.find("FACTURAS_CORRECTAS").text)
+                noReceptores = int(autorizacion.find("CANTIDAD_RECEPTORES").text)
+                noEmisores = int(autorizacion.find("CANTIDAD_EMISORES").text)
+                
+                listaFacturas = []
+                listado_autorizacion = autorizacion.find("LISTADO_AUTORIZACIONES")
+                
+                for factura in listado_autorizacion.findall("APROBACION"):
+                    nit_emisor = factura.find("NIT_EMISOR").text
+                    referencia = factura.find("NIT_EMISOR").attrib["ref"]
+                    codigo_aprobacion = factura.find("CODIGO_APROBACION").text
+                    total = factura.find("TOTAL").text
+                    valor = round(float(total)/1.12, 2)
+                    iva = float(total) - float(valor)
+
+                    listaFacturas.append(Factura(fecha,referencia,nit_emisor,None,valor,round(iva,2),total,codigo_aprobacion))   
+                
+                listaAutorizaciones.append(Autorizacion(fecha,int(noFacturas),listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
+        
+
             
         return listaAutorizaciones
     
@@ -149,7 +155,6 @@ class Salida:
             try:
                 filename = "Flask/autorizaciones.xml"
                 tree.write(filename, pretty_print=True)
-                print("El archivo se ha generado exitosamente")
             except Exception as e:
                 print("ERROR: ",e)
                 
