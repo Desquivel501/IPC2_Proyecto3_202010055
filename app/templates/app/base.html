@@ -10,6 +10,7 @@
 
         {% load static %}
         <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        <script src="{% static 'js/scripts.js' %}"></script>
 
         <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
         <link href='https://fonts.googleapis.com/css?family=Roboto Condensed' rel='stylesheet'>
@@ -20,7 +21,8 @@
         <link rel="stylesheet" id="font-awesome-css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css?ver=4.9.4" type="text/css" media="all">
         <script defer="" src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
         <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js" integrity="sha512-dBB2PGgYedA6vzize7rsf//Q6iuUuMPvXCDybHtZP3hQXCPCD/YVJXK3QYZ2v0p7YCfVurqr8IdcSuj4CCKnGg==" crossorigin="anonymous"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>
 
         <title>My App</title>
     </head>
@@ -53,7 +55,7 @@
                         Ayuda
                       </a>
                       <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <li><a class="dropdown-item" href="#">Datos del Estudiante</a></li>
+                        <li><a class="dropdown-item" onclick="ayuda()">Datos del Estudiante</a></li>
                         <li><a class="dropdown-item" href="https://drive.google.com/file/d/1xKAzTVpnjQUVHAtkUM8_9ErUocc_JzUS/view?usp=sharing" target="_blank">Documentacion</a></li>
                       </ul>
                     </li>
@@ -79,13 +81,16 @@
                       <form action="" method="post">
                       {% csrf_token %}
 
-                        <div class="row justify-content-end" style="margin-top: -40px;">
+                        <div class="row justify-content-end" style="margin-top: -40px; margin-right: 40px;">
                             <div class="col-1">
                                 <button type="submit" class="btn btn-outline-success" id="button-enviar">Enviar</button>
                             </div>
                             <div class="col-1">
                                 <button type="button" class="btn btn-outline-danger" id="button-enviar" onClick="borrar()">Reset</button>
                             </div>
+                            <div class="col-1">
+                              <button type="button" class="btn btn-outline-primary" id="button-reporte" style="width: max-content;" onClick="dataPDF()">Generar Reporte</button>
+                          </div>
                         </div>
                         &nbsp;
                         <div class="container">
@@ -105,6 +110,8 @@
                     </section>
 
                     <script>
+                      window.jsPDF = window.jspdf.jsPDF;
+                      
                       var test = document.querySelector('input');
                       
                       function cargaArchivo(){
@@ -171,6 +178,41 @@
                           .then(response =>{
                             document.getElementById('salida').value = response.xml
                         })
+                      }
+
+                      //window.jsPDF = window.jspdf.jsPDF;
+                      function dataPDF(){
+
+                        var doc = new jsPDF("l", "mm", "a4");
+                        var height = doc.internal.pageSize.height
+                        doc.setFontSize(12)
+                      
+                        fetch('http://127.0.0.1:8000/getSalida', {
+                            method: 'GET',
+                          })
+                          .then(res => res.json())
+                          .catch(err =>{
+                            console.log("Ha ocurrido un error");
+                            alert("Ha ocurrido un error")
+                          })
+                          .then(response =>{
+
+                            array_lineas = response.xml.split("\n")
+                            y = 0
+                            cont = 0
+                            for( i in array_lineas){
+                              doc.text(array_lineas[i], 10, 10 + y )
+                              y = y + 5
+                              cont += 1
+                              if (cont > 38){
+                                doc.addPage();
+                                y = 0
+                                cont = 0
+                              }
+                            }
+                            doc.save("autorizaciones.pdf")
+
+                          })
                       }
 
                     </script>

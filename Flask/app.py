@@ -71,6 +71,30 @@ def getTablaIva():
     return jsonify(objeto)
 
 
+@app.route("/getTablaIva2", methods=["POST"])
+def getTablaIva2():
+    global listaAutorizaciones
+    
+    tabla = Functions()
+
+    nit = request.json['nit']
+    fecha = request.json['fecha']
+    
+    datos = tabla.tablaIva2(nit,fecha,listaAutorizaciones)
+    
+    objeto={"mensaje":"ERROR"}
+    
+    if datos is not None:
+
+        objeto = {
+            "xValues":datos[1],
+            "yValues":datos[0],
+            "titulo":str("IVA emitido y recibido el " + fecha),
+            "mensaje":"Correcto"
+        }
+    return jsonify(objeto)
+
+
 @app.route("/getTablaFecha", methods=["POST"])
 def getTablaFecha():
     global listaAutorizaciones
@@ -119,6 +143,45 @@ def reset():
     objeto = {"Mensaje":"Borrado"}
     
     return jsonify(objeto)
+
+
+@app.route("/getNits", methods=["GET"])
+def getNits():
+    global listaAutorizaciones
+    function = Functions()
+    lista_nits = function.getNits(listaAutorizaciones)
+    
+    objeto = {"Lista":lista_nits}
+    
+    return jsonify(objeto)
+
+@app.route("/salidaPDF", methods=["GET"])
+def salidaPDF():
+    import base64
+    import os
+    from reportlab.pdfgen import canvas
+    
+    filenameXML = "Flask/autorizaciones.xml"
+    archivoXML = open(filenameXML, "r")
+    contenido = archivoXML.read()
+    
+    filenamePDF = "Flask/autorizaciones.pdf"
+    c = canvas.Canvas(filenamePDF)
+    c.drawString(100, 700, contenido)
+    c.save()
+    
+    
+    with open(filenamePDF, "rb") as pdf_file:
+        encoded_string = base64.b64encode(pdf_file.read())
+        
+    
+    print("salida")
+    objeto = {
+        "archivo":encoded_string
+    }
+
+    return jsonify(objeto)
+
 
 
 if __name__ == "__main__":

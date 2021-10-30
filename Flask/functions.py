@@ -49,12 +49,19 @@ class Functions:
             if self.checkReferencia(referencia, listaAutorizaciones):
                 valid = False
                 listaAutorizaciones[index].error.duplicada += 1
-            if self.comprobarNIT(emisor) is False:
+                
+            comprobarEmisor = self.comprobarNIT(emisor)
+            if comprobarEmisor[0] is False:
                 valid = False
                 listaAutorizaciones[index].error.nit_emisor += 1
-            if self.comprobarNIT(receptor) is False:
+            emisor = comprobarEmisor[1]
+            
+            comprobarReceptor = self.comprobarNIT(receptor)
+            if comprobarReceptor[0] is False:
                 valid = False
                 listaAutorizaciones[index].error.nit_receptor += 1
+            receptor = comprobarReceptor[1]
+                
             if valor_parseado[1] is False:
                 valid = False
                 listaAutorizaciones[index].error.valor += 1
@@ -139,7 +146,35 @@ class Functions:
                 
     
     def comprobarNIT(self, nit):
-        return True
+        valor = str(nit).strip()     
+        try:
+            int(valor)
+        except ValueError:
+            return (False, None)
+ 
+        if len(valor) > 9:
+            return (False, None)
+        
+        digit_map = map(int, valor)
+        nit_list = list(digit_map)
+        
+        total = nit_list.pop()
+        
+        nit_list = list(reversed(nit_list))
+        
+        aux = 1
+        for num in nit_list:
+            total += aux*num
+            aux+=1
+        
+        total = total % 11
+        total = total - 11
+        total = total % 11
+        
+        if total == 10:
+            nit += "K"
+
+        return (True, nit)
     
     def checkValor(self, tiempo):
         valor_res = "noValor"
@@ -311,4 +346,51 @@ class Functions:
             return (lista_fechas_aux, lista_total_aux)
         return(None)       
             
-            
+    def tablaIva2(self, nit, fecha , listaAutorizaciones):
+
+        valores = []
+        titulos = ["Emitido", "Recibido"]
+        
+        fecha = fecha.strip()
+        
+        for autorizacion in listaAutorizaciones:
+
+            fecha_actual = autorizacion.fecha.strip()
+                
+            if fecha == fecha_actual:
+                total_emitido = 0
+                total_recibido = 0
+                
+                for factura in autorizacion.listaFacturas:
+                    
+                    if str(factura.nit_emisor).strip() == str(nit).strip():
+                        iva = float(str(factura.iva).strip())
+                        total_emitido += iva
+  
+                    if str(factura.nit_receptor).strip() == str(nit).strip():
+                        iva = float(str(factura.iva).strip())
+                        total_recibido += iva
+                
+                valores.append(float(total_emitido))
+                valores.append(float(total_recibido))
+
+                return (valores, titulos)
+        
+        return(None)
+    
+    
+    def getNits(sef, listaAutorizaciones):
+        lista_nits = []
+        
+        for autorizacion in listaAutorizaciones:
+            for factura in autorizacion.listaFacturas:
+                
+                if str(factura.nit_emisor).strip() not in lista_nits:
+                    if factura.nit_emisor is not None:
+                        lista_nits.append(str(factura.nit_emisor).strip())
+                    
+                if str(factura.nit_receptor).strip() not in lista_nits:
+                    if factura.nit_receptor is not None:
+                        lista_nits.append(str(factura.nit_receptor).strip())
+                    
+        return lista_nits

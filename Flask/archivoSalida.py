@@ -13,7 +13,7 @@ class Salida:
         archivo = open(filename,"r")
         contenido = archivo.read()
         
-        if contenido is not "":
+        if contenido != "":
 
             parser = ET.XMLParser(encoding="utf-8")
             tree = ET.parse(filename,parser =parser)
@@ -55,12 +55,13 @@ class Salida:
                 for factura in listado_autorizacion.findall("APROBACION"):
                     nit_emisor = factura.find("NIT_EMISOR").text
                     referencia = factura.find("NIT_EMISOR").attrib["ref"]
+                    nit_receptor = factura.find("NIT_RECEPTOR").text
                     codigo_aprobacion = factura.find("CODIGO_APROBACION").text
                     total = factura.find("TOTAL").text
                     valor = round(float(total)/1.12, 2)
                     iva = float(total) - float(valor)
 
-                    listaFacturas.append(Factura(fecha,referencia,nit_emisor,None,valor,round(iva,2),total,codigo_aprobacion))   
+                    listaFacturas.append(Factura(fecha,referencia,nit_emisor,nit_receptor,valor,round(iva,2),total,codigo_aprobacion))   
                 
                 listaAutorizaciones.append(Autorizacion(fecha,int(noFacturas),listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
         
@@ -137,6 +138,10 @@ class Salida:
                 nit_emisor.text = str(factura.nit_emisor)
                 nit_emisor.set('ref', str(factura.referencia))
                 aprobacion.append(nit_emisor)
+                
+                nit_receptor = etree.Element('NIT_RECEPTOR')
+                nit_receptor.text = str(factura.nit_receptor)
+                aprobacion.append(nit_receptor)
                 
                 codigo = etree.Element('CODIGO_APROBACION')
                 codigo.text = str(factura.codigo)

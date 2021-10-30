@@ -29,14 +29,16 @@
         </form>
     </div>
     <div class="col">
-        <canvas id="myChart"></canvas>
-    </div>    
+      <canvas id="myChart"></canvas><br>
+      <button type="button" class="btn btn-outline-primary" id ="botonPDF" style="visibility: hidden;" onclick="saveAsPDF();">Generar reporte PDF</button>
+  </div>       
 </div>  
 
 {% endblock %}
 
 {% block jsblock %}
   <script>
+    window.jsPDF = window.jspdf.jsPDF;
     document.addEventListener('submit',function(event){
       event.preventDefault();
       var xValues = [];
@@ -99,6 +101,7 @@
                     },
                 }
                 });
+                document.getElementById("botonPDF").style.visibility="visible";
             }else{
               alert("Error")
             }

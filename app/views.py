@@ -39,7 +39,7 @@ def graph(request):
     return render(request, 'app/graph.html')
 
 def graphIva(request):
-    return render(request, 'app/graphIVA.html')
+    return render(request, 'app/graphIVA2.html')
 
 def graphFecha(request):
     return render(request, 'app/graphFechas.html')
@@ -118,6 +118,51 @@ def reset(request):
     if request.method == 'GET':
         print("GET!")
         requests_response  = requests.get(url+'reset', verify=True)
+        
+    django_response = HttpResponse(
+        content=requests_response.content,
+        status=requests_response.status_code,
+        content_type=requests_response.headers['Content-Type']
+    )
+
+    return HttpResponse(django_response)
+
+
+
+def getTablaIva2(request):
+    if request.method == 'POST':
+        print("GET!")
+        
+        post_data = json.loads(request.body.decode("utf-8"))
+        
+        nit = post_data['nit']
+        fecha = post_data['fecha']
+        
+        desde_list = fecha.split("-")
+        desde_list = desde_list[::-1]
+        fecha = str(desde_list[0]+"/"+desde_list[1]+"/"+desde_list[2])
+        
+
+        objeto = {
+            "nit":nit,
+            "fecha":fecha
+        }
+
+        requests_response = requests.post(url+'getTablaIva2', json=objeto, verify=True)
+        
+    django_response = HttpResponse(
+        content=requests_response.content,
+        status=requests_response.status_code,
+        content_type=requests_response.headers['Content-Type']
+    )
+
+    return HttpResponse(django_response)
+
+
+def getSalidaPDF(request):
+    if request.method == 'GET':
+        print("GET!")
+        requests_response  = requests.get(url+'salidaPDF', verify=True)
         
     django_response = HttpResponse(
         content=requests_response.content,

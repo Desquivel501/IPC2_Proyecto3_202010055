@@ -12,4 +12,6 @@ urlpatterns = [
     path('getTablaIva', getTablaIva),
     path('getTablaFechas', getTablaFechas),
     path('reset', reset),
+    path('getTablaIva2', getTablaIva2),
+    path('getSalidaPDF', getSalidaPDF),
 ]
