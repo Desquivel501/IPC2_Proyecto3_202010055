@@ -14,10 +14,8 @@
               <input type="text" class="form-control" id="nit"> -->
             </div>
 
-            <div class="form-group" id="Seleccionar"></div>
-
             <div class="mb-3">
-                <label for="FechaHasta" class="form-label">Fecha</label>
+                <label for="fecha" class="form-label">Fecha</label>
                 <input type="date" id="fecha" placeholder="dd-mm-yyyy" value="" min="1997-01-01" max="2030-12-31" style="width: 50%;">
             </div>
 
@@ -25,9 +23,8 @@
             
         </form>
     </div>
-    <div class="col">
+    <div class="col" id = "graph-container">
         <canvas id="myChart"></canvas><br>
-        <button type="button" class="btn btn-outline-primary" id ="botonPDF" style="visibility: hidden;" onclick="saveAsPDF();">Generar reporte PDF</button>
     </div>    
 </div>  
 
@@ -43,12 +40,10 @@
       var xValues = [];
       var yValues = [];
       var barColors = [];
-
-      var nit = document.getElementById('selectNit').value 
+      
       var fecha = document.getElementById('fecha').value 
       
       var objeto = {
-        "nit":nit,
         "fecha":fecha
       }
 
@@ -72,24 +67,38 @@
           .then(response =>{
             console.log(response)
             if( response.mensaje != "ERROR"){
-              xValues = response.xValues
-              yValues = response.yValues
-              barColors = ["red", "blue"];
+              titulos = response.titulos
+              emitido = response.emitido
+              recibido = response.recibido
+
+              emitido1 = [1,0,3,0]
+              recibido1 = [0,3,0,1]
+
+              $('#myChart').remove(); 
+              $('#botonPDF').remove(); 
+              $('#graph-container').append('<canvas id="myChart"><canvas><br>');
+              $('#graph-container').append('<button type="button" class="btn btn-outline-primary" id ="botonPDF" onclick="saveAsPDF();">Generar reporte PDF</button>');
   
               new Chart("myChart", {
                 type: "bar",
                 data: {
-                    labels: xValues,
+                    labels: titulos,
                     datasets: [
                       {
-                        backgroundColor: barColors,
-                        data: yValues
+                        label:"Recibido",
+                        backgroundColor: "rgba(0,0,255,1.0)",
+                        data: recibido
+                      },
+                      {
+                        label:"Emitido",
+                        backgroundColor: "rgba(255,0,0,1.0)",
+                        data: emitido
                       },
                       
                     ]
                 },
                 options: {
-                    legend: {display: false},
+                    legend: {display: true},
                     title: {
                     display: true,
                     text: response.titulo,
@@ -106,7 +115,6 @@
                 }
                 });
 
-                document.getElementById("botonPDF").style.visibility="visible";
             }else{
               alert("Error")
             }
@@ -115,37 +123,6 @@
       
         })
     })
-
-    function getNits(){
-      var selectForm = document.querySelector('#Seleccionar');
-      cadena = ""
-
-      fetch('http://127.0.0.1:5000/getNits', {
-      method: 'GET',
-      })
-      .then(res => res.json())
-      .catch(err =>{
-          console.log(err);
-          alert("Ha ocurrido un error")
-      })
-        .then(response =>{
-          console.log(response)
-          cadena+=`
-                    <label for="nit" class="form-label">NIT</label>
-                    <select class="selectpicker" data-live-search="true" data-live-search-style="startsWith" id="selectNit"> 
-                  `
-          for(var i in response.Lista){
-            cadena += `
-                        <option value="${(response.Lista[i])}">${response.Lista[i]}</option>
-                      `
-            }
-            cadena += "</select>"
-            selectForm.innerHTML = cadena;
-          
-      })
-    }
-
-    window.onload = getNits()
 
     </script>
     

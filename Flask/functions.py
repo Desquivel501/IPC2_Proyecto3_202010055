@@ -14,9 +14,10 @@ class Functions:
         
         tree = ET.ElementTree(ET.fromstring(string))
         root = tree.getroot()
-        valid = True
+        
         
         for dte in  root.findall("DTE"):
+            valid = True
             tiempo = dte.find("TIEMPO").text
             referencia = str(dte.find("REFERENCIA").text).strip()
             emisor = dte.find("NIT_EMISOR").text
@@ -29,7 +30,7 @@ class Functions:
 
             fecha = tiempo_parseado[0][0]
             hora = tiempo_parseado[1][0]
-            print(fecha)
+            
             index = self.getAutorizacion(listaAutorizaciones,fecha)
             
             codigo = int(listaAutorizaciones[index].codigo) + 1
@@ -43,33 +44,41 @@ class Functions:
             if not fecha:
                 valid = False
                 listaAutorizaciones[index].error.fecha += 1
+                print("Error Fecha")
             if not hora:
                 valid = False
                 listaAutorizaciones[index].error.hora += 1
+                print("Error Hora")
             if self.checkReferencia(referencia, listaAutorizaciones):
                 valid = False
+                print("Error Referencia")
                 listaAutorizaciones[index].error.duplicada += 1
                 
             comprobarEmisor = self.comprobarNIT(emisor)
             if comprobarEmisor[0] is False:
                 valid = False
+                print("Error Nit Emisor")
                 listaAutorizaciones[index].error.nit_emisor += 1
             emisor = comprobarEmisor[1]
             
             comprobarReceptor = self.comprobarNIT(receptor)
             if comprobarReceptor[0] is False:
                 valid = False
+                print("Error Nit Receptor")
                 listaAutorizaciones[index].error.nit_receptor += 1
             receptor = comprobarReceptor[1]
                 
             if valor_parseado[1] is False:
                 valid = False
+                print("Error Valor")
                 listaAutorizaciones[index].error.valor += 1
             if iva_parseado[1] is False or self.checkIva(valor, iva) is False:
                 valid = False
+                print("Error Iva")
                 listaAutorizaciones[index].error.iva += 1
             if total_parseado[1] is False or self.checkTotal(valor, iva, total) is False:
                 valid = False
+                print("Error Total")
                 listaAutorizaciones[index].error.total += 1
                 
             if valid:
@@ -78,7 +87,7 @@ class Functions:
                 receptor_repetido = False
                 for factura in listaAutorizaciones[index].listaFacturas:
                         
-                    if str(factura.nit_receptor) == str(receptor):
+                    if str(factura.nit_receptor).strip() == str(receptor).strip():
                         receptor_repetido = True
                 if receptor_repetido is False:
                     listaAutorizaciones[index].noReceptores += 1
@@ -86,21 +95,17 @@ class Functions:
                 emisor_repetido = False
                 for factura in listaAutorizaciones[index].listaFacturas:
                         
-                    if str(factura.nit_emisor) == str(emisor):
+                    if str(factura.nit_emisor).strip() == str(emisor).strip():
                         emisor_repetido = True
                 if emisor_repetido is False:
                     listaAutorizaciones[index].noEmisores += 1
 
                 
-                listaAutorizaciones[index].listaFacturas.append(Factura(fecha,referencia,emisor,receptor,valor,iva,total, codigo))
+                listaAutorizaciones[index].listaFacturas.append(Factura(fecha,referencia, str(emisor).strip(), str(receptor).strip(), valor,iva,total, codigo))
                 listaAutorizaciones[index].noFacturas += 1
                 listaAutorizaciones[index].noCorrectas += 1
                 listaAutorizaciones[index].codigo += 1
-                
-                print("here")
-                
-                
-                    
+                 
             else:
                 # del listaAutorizaciones[-1]
                 print("Invalid")
@@ -130,7 +135,7 @@ class Functions:
             aux2 = hora[0].split(":")
             if not 0<int(aux2[0])<25:
                 hora = []
-            if not 0<int(aux2[1])<61:
+            if not 0<=int(aux2[1])<61:
                 hora = []      
               
         # print(fecha, hora)
@@ -181,28 +186,23 @@ class Functions:
         valor_res = re.findall(r'[0-9]+\.[0-9]{2}', tiempo)
         res = 0
         found = False
-        print(valor_res)
         if valor_res:
             found = True
             res = float(valor_res[0])
         
-        print(res, found)
         return(res, found)
     
     def checkIva(self, valor, iva):
         total = round(float(valor)*0.12, 2)
-        print(total, iva)
-        if float(total) == float(iva):
+        if (float(iva)-1) <= float(total) <= (float(iva)+1):
             return True
-        print("IVA no valido")
         return False
     
     def checkTotal(self, valor, iva, total):
         aux = float(valor) + float(iva)
         
-        if float(aux) == float(total):
+        if (float(total)-1) <= float(aux) <= (float(total)+1):
             return True
-        print("Total no valido")
         return False
     
     def getAutorizacion(self, listaAutorizacion, fecha):
@@ -215,76 +215,48 @@ class Functions:
         listaAutorizacion.append(Autorizacion(fecha,0,[],error,0,0,0))
         return index
  
-    def tablaIva(self, nit, desde , hasta, listaAutorizaciones):
-        import time
-        from datetime import datetime
-        from time import mktime
+    def tablaIva(self, fecha, listaAutorizaciones):
+        valores = []
+        titulos = []
+        lista_emitido = []
+        lista_recibido = []
+        lista_nits = self.getNits(listaAutorizaciones)
+        
+        fecha = fecha.strip()
+        
+        for autorizacion in listaAutorizaciones:
 
-        lista = []
-        
-        desde = desde.strip()
-        hasta = hasta.strip()
-        
-        fecha_desde = time.strptime(desde, "%d/%m/%Y")
-        fecha_hasta = time.strptime(hasta, "%d/%m/%Y")
-        
-        check_valid = False
-        
-        if fecha_desde < fecha_hasta:
-            print("Valid")
-            check_valid = True
-        else:
-            print("No")
-            
-        if check_valid:
-            for autorizacion in listaAutorizaciones:
-                lista_aux = []
+            fecha_actual = autorizacion.fecha.strip()
                 
-                fecha = autorizacion.fecha.strip()
-                fecha_actual = time.strptime(fecha, "%d/%m/%Y")
+            if fecha == fecha_actual:
                 
-                if fecha_desde <= fecha_actual <= fecha_hasta:
-                    lista_aux.append(fecha_actual)
-                    
-                    dt = datetime.fromtimestamp(mktime(fecha_actual))
-                    
-                    fecha_str = dt.strftime("%d/%m/%Y")
-                    
+                
+                for nit_actual in lista_nits:  
                     total_emitido = 0
                     total_recibido = 0
-                    
+                    titulos.append(nit_actual)
+                
                     for factura in autorizacion.listaFacturas:
-
-                        if str(factura.nit_emisor).strip() == str(nit).strip():
+            
+                        if str(factura.nit_emisor).strip() == str(nit_actual).strip():
                             iva = float(str(factura.iva).strip())
                             total_emitido += iva
-
-                        print(nit, factura.nit_receptor)  
-                        if str(factura.nit_receptor).strip() == str(nit).strip():
+    
+                        if str(factura.nit_receptor).strip() == str(nit_actual).strip():
                             iva = float(str(factura.iva).strip())
                             total_recibido += iva
+                            
+                    if total_emitido == 0 and total_recibido == 0:
+                        titulos.pop()
+                    else:
+                        lista_emitido.append(float(round(float(total_emitido), 2)))
+                        lista_recibido.append(float(round(float(total_recibido), 2)))
                     
-                    lista_aux.append(total_emitido)
-                    lista_aux.append(total_recibido)
-                    
-                lista.append(lista_aux)
-
-            lista.sort()
-            
-            lista_fechas_aux = []
-            lista_emisores_aux = []
-            lista_receptores_aux = []
-            
-            for elemento in lista:
-                dt = datetime.fromtimestamp(mktime(elemento[0]))
-                fecha_str = dt.strftime("%d/%m/%Y")
-                
-                lista_fechas_aux.append(fecha_str)
-                lista_emisores_aux.append(elemento[1])
-                lista_receptores_aux.append(elemento[2])
-
-            return (lista_fechas_aux, lista_emisores_aux, lista_receptores_aux )
+                return (titulos, lista_emitido, lista_recibido)
+        
         return(None)
+              
+              
               
     def tablaFecha(self, iva, desde , hasta, listaAutorizaciones):
         import time

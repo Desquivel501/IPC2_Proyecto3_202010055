@@ -65,8 +65,6 @@ class Salida:
                 
                 listaAutorizaciones.append(Autorizacion(fecha,int(noFacturas),listaFacturas,listaErrores,noReceptores,noEmisores,noCorrectas))
         
-
-            
         return listaAutorizaciones
     
     

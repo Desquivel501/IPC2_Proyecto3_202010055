@@ -135,7 +135,6 @@ def getTablaIva2(request):
         
         post_data = json.loads(request.body.decode("utf-8"))
         
-        nit = post_data['nit']
         fecha = post_data['fecha']
         
         desde_list = fecha.split("-")
@@ -144,11 +143,10 @@ def getTablaIva2(request):
         
 
         objeto = {
-            "nit":nit,
             "fecha":fecha
         }
 
-        requests_response = requests.post(url+'getTablaIva2', json=objeto, verify=True)
+        requests_response = requests.post(url+'getTablaIva', json=objeto, verify=True)
         
     django_response = HttpResponse(
         content=requests_response.content,

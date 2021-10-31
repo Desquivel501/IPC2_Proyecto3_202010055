@@ -52,21 +52,20 @@ def getTablaIva():
     
     tabla = Functions()
 
-    nit = request.json['nit']
-    desde = request.json['desde']
-    hasta = request.json['hasta']
+    fecha = request.json['fecha']
     
-    datos = tabla.tablaIva(nit,desde,hasta,listaAutorizaciones)
+    datos = tabla.tablaIva(fecha,listaAutorizaciones)
     
     objeto={"mensaje":"ERROR"}
     
     if datos is not None:
 
         objeto = {
-            "xValues":datos[0],
-            "emisores":datos[1],
-            "receptores":datos[2],
-            "mensaje":"Correcto"
+            "titulos":datos[0],
+            "emitido":datos[1],
+            "recibido":datos[2],
+            "mensaje":"Correcto",
+            "titulo":str("IVA emitido y recibido el " + fecha),
         }
     return jsonify(objeto)
 
