@@ -79,8 +79,8 @@
 
               $('#myChart').remove(); 
               $('#botonPDF').remove(); 
-              $('#graph-container').append('<canvas id="myChart"><canvas><br>');
-              $('#graph-container').append('<button type="button" class="btn btn-outline-primary" id ="botonPDF" onclick="saveAsPDF();">Generar reporte PDF</button>');
+              $('#graph-container').append('<canvas id="myChart" style="background-color: #fff; padding-left:10px" ></canvas><br>');
+              $('#graph-container').append('<button type="button" class="btn btn-primary" id ="botonPDF" onclick="saveAsPDF();">Generar reporte PDF</button>');
 
               xValues = response.xValues
               total = response.total
@@ -106,11 +106,23 @@
                     display: true,
                     text: "Total por fecha"
                     },
+                    resposive: true,
+                    scales: {
+                      yAxes: [{
+                          ticks: {
+                              beginAtZero: true
+                          }
+                      }]
+                    }
                 }
                 });
                 
             }else{
-              alert("Error")
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                html: 'No se han encontrado registros entre las fechas seleccionadas'
+              })
             }
 
           

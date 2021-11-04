@@ -1,3 +1,4 @@
+from os import path
 import xml.etree.ElementTree as ET
 from facturas import Factura, Errores, Autorizacion
 import re
@@ -10,28 +11,37 @@ class Functions:
     def analizarEntrada(self, xml, listaAutorizaciones):
         string = xml
         if string == "":
-            return
+            return(listaAutorizaciones)
         
-        tree = ET.ElementTree(ET.fromstring(string))
+        try:
+            tree = ET.ElementTree(ET.fromstring(string))
+        except:
+            print("Exit")
+            return(listaAutorizaciones)
+        
         root = tree.getroot()
-        
         
         for dte in  root.findall("DTE"):
             valid = True
-            tiempo = dte.find("TIEMPO").text
+            tiempo = str(dte.find("TIEMPO").text).strip()
             referencia = str(dte.find("REFERENCIA").text).strip()
-            emisor = dte.find("NIT_EMISOR").text
-            receptor = dte.find("NIT_RECEPTOR").text
-            valor = dte.find("VALOR").text
-            iva = dte.find("IVA").text
-            total = dte.find("TOTAL").text
+            emisor = str(dte.find("NIT_EMISOR").text).strip()
+            receptor = str(dte.find("NIT_RECEPTOR").text).strip()
+            valor = str(dte.find("VALOR").text).strip()
+            iva = str(dte.find("IVA").text).strip()
+            total = str(dte.find("TOTAL").text).strip()
             
             tiempo_parseado = self.parseTiempo(tiempo)
 
-            fecha = tiempo_parseado[0][0]
-            hora = tiempo_parseado[1][0]
+            fecha = tiempo_parseado[0]
+            hora = tiempo_parseado[1]
             
-            index = self.getAutorizacion(listaAutorizaciones,fecha)
+            if fecha[1]:
+                index = self.getAutorizacion(listaAutorizaciones,fecha[0])
+                listaAutorizaciones[index].noFacturas += 1
+            else:
+                print("Exit")
+                return(listaAutorizaciones)
             
             codigo = int(listaAutorizaciones[index].codigo) + 1
             
@@ -39,14 +49,12 @@ class Functions:
             iva_parseado = self.checkValor(iva)
             total_parseado = self.checkValor(total)
             
-           
-            
-            if not fecha:
+
+            if fecha[1] is False:
                 valid = False
                 listaAutorizaciones[index].error.fecha += 1
                 print("Error Fecha")
-            if not hora:
-                valid = False
+            if hora[1] is False:
                 listaAutorizaciones[index].error.hora += 1
                 print("Error Hora")
             if self.checkReferencia(referencia, listaAutorizaciones):
@@ -72,11 +80,13 @@ class Functions:
                 valid = False
                 print("Error Valor")
                 listaAutorizaciones[index].error.valor += 1
-            if iva_parseado[1] is False or self.checkIva(valor, iva) is False:
+                
+            if iva_parseado[1] is False or self.checkIva(valor_parseado[0], iva_parseado[0]) is False:
                 valid = False
                 print("Error Iva")
                 listaAutorizaciones[index].error.iva += 1
-            if total_parseado[1] is False or self.checkTotal(valor, iva, total) is False:
+                
+            if total_parseado[1] is False or self.checkTotal(valor_parseado[0], iva_parseado[0], total_parseado[0]) is False:
                 valid = False
                 print("Error Total")
                 listaAutorizaciones[index].error.total += 1
@@ -85,8 +95,7 @@ class Functions:
                 print("Valid!")
                 
                 receptor_repetido = False
-                for factura in listaAutorizaciones[index].listaFacturas:
-                        
+                for factura in listaAutorizaciones[index].listaFacturas:       
                     if str(factura.nit_receptor).strip() == str(receptor).strip():
                         receptor_repetido = True
                 if receptor_repetido is False:
@@ -94,20 +103,18 @@ class Functions:
                         
                 emisor_repetido = False
                 for factura in listaAutorizaciones[index].listaFacturas:
-                        
                     if str(factura.nit_emisor).strip() == str(emisor).strip():
                         emisor_repetido = True
                 if emisor_repetido is False:
                     listaAutorizaciones[index].noEmisores += 1
 
                 
-                listaAutorizaciones[index].listaFacturas.append(Factura(fecha,referencia, str(emisor).strip(), str(receptor).strip(), valor,iva,total, codigo))
-                listaAutorizaciones[index].noFacturas += 1
+                listaAutorizaciones[index].listaFacturas.append(Factura(fecha[0],referencia, str(emisor).strip(), str(receptor).strip(), valor,iva,total, codigo))
+                
                 listaAutorizaciones[index].noCorrectas += 1
                 listaAutorizaciones[index].codigo += 1
                  
             else:
-                # del listaAutorizaciones[-1]
                 print("Invalid")
             
         return (listaAutorizaciones)
@@ -122,24 +129,27 @@ class Functions:
         fecha = re.findall(r'[0-9]{2}/[0-9]{2}/[0-9]{4}', tiempo)
         hora = re.findall(r'[0-9]{1,2}:[0-9]{1,2}', tiempo)
         
+        fecha_list = [None,False]
         if fecha:
+            print("Found Fecha:", fecha)
+            fecha_list = [fecha[0],True]
             aux = fecha[0].split("/")
             if not 0<int(aux[0])<32:
-                fecha = []
+                fecha_list = [None,False]
             if not 0<int(aux[1])<13:
-                fecha = []
-            # if not 0<int(aux[2]):
-            #     fecha = []
+                fecha_list = [None,False]
         
+        hora_list = [None,False]
         if hora:
+            print("Found Hora", hora)
+            hora_list = [hora[0],True]
             aux2 = hora[0].split(":")
             if not 0<int(aux2[0])<25:
-                hora = []
+                hora_list = [None,False]
             if not 0<=int(aux2[1])<61:
-                hora = []      
+                hora_list = [None,False]
               
-        # print(fecha, hora)
-        return(fecha,hora)
+        return(fecha_list, hora_list)
         
     def checkReferencia(self, referencia, listaAutorizaciones):
         for autorizacion in listaAutorizaciones:
@@ -149,7 +159,6 @@ class Functions:
                     return True
         return False
                 
-    
     def comprobarNIT(self, nit):
         valor = str(nit).strip()     
         try:
@@ -157,40 +166,43 @@ class Functions:
         except ValueError:
             return (False, None)
  
-        if len(valor) > 9:
+        if len(valor) > 20:
             return (False, None)
         
         digit_map = map(int, valor)
         nit_list = list(digit_map)
         
-        total = nit_list.pop()
-        
+        nit_list.pop()
+
         nit_list = list(reversed(nit_list))
         
+        total = 0
         aux = 1
         for num in nit_list:
             total += aux*num
             aux+=1
         
+
         total = total % 11
-        total = total - 11
+        total = 11 - total 
         total = total % 11
         
         if total == 10:
+            nit = str(nit).strip()
             nit += "K"
 
         return (True, nit)
     
-    def checkValor(self, tiempo):
-        valor_res = "noValor"
-        valor_res = re.findall(r'[0-9]+\.[0-9]{2}', tiempo)
-        res = 0
-        found = False
-        if valor_res:
-            found = True
-            res = float(valor_res[0])
+    def checkValor(self, valor):
+        valor_res = re.findall(r'\b[0-9]+\.[0-9]{2}(?!\S)\b', valor)
+        is_match = bool(valor_res)
         
-        return(res, found)
+        if is_match:
+            res = float(valor_res[0])
+            return(res, True)
+        else:
+            return (0, False)
+        
     
     def checkIva(self, valor, iva):
         total = round(float(valor)*0.12, 2)
@@ -216,7 +228,6 @@ class Functions:
         return index
  
     def tablaIva(self, fecha, listaAutorizaciones):
-        valores = []
         titulos = []
         lista_emitido = []
         lista_recibido = []
@@ -229,7 +240,6 @@ class Functions:
             fecha_actual = autorizacion.fecha.strip()
                 
             if fecha == fecha_actual:
-                
                 
                 for nit_actual in lista_nits:  
                     total_emitido = 0
@@ -255,9 +265,7 @@ class Functions:
                 return (titulos, lista_emitido, lista_recibido)
         
         return(None)
-              
-              
-              
+                      
     def tablaFecha(self, iva, desde , hasta, listaAutorizaciones):
         import time
         from datetime import datetime
@@ -314,9 +322,12 @@ class Functions:
                 
                 lista_fechas_aux.append(fecha_str)
                 lista_total_aux.append(elemento[1])
-                
+            
+            
+        if lista_fechas_aux and lista_total_aux:
             return (lista_fechas_aux, lista_total_aux)
-        return(None)       
+        else:
+            return(None)       
             
     def tablaIva2(self, nit, fecha , listaAutorizaciones):
 

@@ -154,32 +154,29 @@ def getNits():
     
     return jsonify(objeto)
 
+
 @app.route("/salidaPDF", methods=["GET"])
 def salidaPDF():
     import base64
     import os
     from reportlab.pdfgen import canvas
     
-    filenameXML = "Flask/autorizaciones.xml"
-    archivoXML = open(filenameXML, "r")
-    contenido = archivoXML.read()
-    
-    filenamePDF = "Flask/autorizaciones.pdf"
-    c = canvas.Canvas(filenamePDF)
-    c.drawString(100, 700, contenido)
-    c.save()
-    
+    filenamePDF = "Flask/IPC2_Proyecto3_202010055_Documentacion.pdf"
     
     with open(filenamePDF, "rb") as pdf_file:
         encoded_string = base64.b64encode(pdf_file.read())
         
-    
     print("salida")
     objeto = {
-        "archivo":encoded_string
+        "archivo":str(encoded_string)
     }
 
     return jsonify(objeto)
+
+
+
+
+
 
 
 

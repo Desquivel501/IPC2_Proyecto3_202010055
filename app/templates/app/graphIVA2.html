@@ -9,9 +9,6 @@
             <div class="mb-3">
                 <h3>Resumen de IVA por fecha y NIT</h3>
                 <hr>
-
-              <!-- <label for="nit" class="form-label">NIT</label>
-              <input type="text" class="form-control" id="nit"> -->
             </div>
 
             <div class="mb-3">
@@ -19,7 +16,7 @@
                 <input type="date" id="fecha" placeholder="dd-mm-yyyy" value="" min="1997-01-01" max="2030-12-31" style="width: 50%;">
             </div>
 
-            <button type="submit" class="btn btn-outline-primary" >Generar</button>
+            <button type="submit" class="btn btn-primary" >Generar</button>
             
         </form>
     </div>
@@ -50,6 +47,7 @@
       const csrftoken = getCookie('csrftoken')
       console.log(objeto)
 
+
       fetch('http://127.0.0.1:8000/getTablaIva2', {
         method: 'POST',
         credentials : 'include',
@@ -76,8 +74,8 @@
 
               $('#myChart').remove(); 
               $('#botonPDF').remove(); 
-              $('#graph-container').append('<canvas id="myChart"><canvas><br>');
-              $('#graph-container').append('<button type="button" class="btn btn-outline-primary" id ="botonPDF" onclick="saveAsPDF();">Generar reporte PDF</button>');
+              $('#graph-container').append('<canvas id="myChart" style="background-color: #fff; padding-left:10px" ></canvas><br>');
+              $('#graph-container').append('<button type="button" class="btn btn-primary" id ="botonPDF" onclick="saveAsPDF();">Generar reporte PDF</button>');
   
               new Chart("myChart", {
                 type: "bar",
@@ -116,7 +114,13 @@
                 });
 
             }else{
-              alert("Error")
+
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  html: 'No se han encontrado registros en la fecha seleccionada'
+                })
+                 
             }
 
           
@@ -124,7 +128,7 @@
         })
     })
 
-    </script>
+  </script>
     
 {% endblock %}
 

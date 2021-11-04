@@ -107,7 +107,7 @@ hr{
     z-index: 99; 
     border: none; 
     outline: none; 
-    background-color: #3498db;
+    background-color: #082032;
     color: white; 
     cursor: pointer; 
     height: 3.5rem;
@@ -130,7 +130,7 @@ hr{
     z-index: 99; 
     border: none; 
     outline: none; 
-    background-color: #3498db;
+    background-color: #082032;
     color: white; 
     cursor: pointer; 
     height: 3.5rem;
@@ -163,10 +163,16 @@ hr{
     font-size: 24px;
 }
 
+
 textarea{
     overflow-y: scroll;
-     /* Remove this if you want the user to resize the textarea */
+    resize: none !important;  
+    background-color: #808893 !important; 
+    color: #fff !important;
+    border-color: #082032 !important;
+    scrollbar-color: #082032 #495057 !important;
 }
+
 
 #label-upload{
     display: inline-block;

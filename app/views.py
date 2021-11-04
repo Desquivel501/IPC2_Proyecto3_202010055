@@ -44,7 +44,6 @@ def graphIva(request):
 def graphFecha(request):
     return render(request, 'app/graphFechas.html')
 
-
 def getTablaIva(request):
     if request.method == 'POST':
         print("GET!")
@@ -113,7 +112,6 @@ def getTablaFechas(request):
 
     return HttpResponse(django_response)
 
-
 def reset(request):
     if request.method == 'GET':
         print("GET!")
@@ -126,8 +124,6 @@ def reset(request):
     )
 
     return HttpResponse(django_response)
-
-
 
 def getTablaIva2(request):
     if request.method == 'POST':
@@ -155,7 +151,6 @@ def getTablaIva2(request):
     )
 
     return HttpResponse(django_response)
-
 
 def getSalidaPDF(request):
     if request.method == 'GET':

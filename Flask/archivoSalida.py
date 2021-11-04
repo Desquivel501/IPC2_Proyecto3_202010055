@@ -55,7 +55,11 @@ class Salida:
                 for factura in listado_autorizacion.findall("APROBACION"):
                     nit_emisor = factura.find("NIT_EMISOR").text
                     referencia = factura.find("NIT_EMISOR").attrib["ref"]
-                    nit_receptor = factura.find("NIT_RECEPTOR").text
+                    nit_receptor_check = factura.find("NIT_RECEPTOR")
+                    if nit_receptor_check is not None: 
+                        nit_receptor = nit_receptor_check.text
+                    else:
+                        nit_receptor = None
                     codigo_aprobacion = factura.find("CODIGO_APROBACION").text
                     total = factura.find("TOTAL").text
                     valor = round(float(total)/1.12, 2)
@@ -72,6 +76,9 @@ class Salida:
         root = etree.Element('LISTAAUTORIZACIONES')
         tree = etree.ElementTree(root)
         
+        if not listaAutorizaciones:
+            return
+              
         for autorizacion in listaAutorizaciones:
             
             autorizacion_tag = etree.Element('AUTORIZACION')
